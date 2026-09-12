@@ -18,19 +18,22 @@ table{width:100%;border-collapse:collapse;font-size:.84rem}td{padding:6px 0;bord
 footer{padding:0 16px 28px;color:var(--muted);font-size:.76rem}
 </style></head><body>
 <header><h1>百萬內中小休旅，十年哪台比較省？</h1>
-<p class="lead">年跑 1.5 萬公里、油 32 元。排名免費，細項 299 元。</p></header>
-<main><form class="card" onsubmit="return run(event)">
+<p class="lead">年跑 1.5 萬公里、油 32 元。排名免費。完整細項報告售價新台幣 299 元。</p></header>
+<main>
+<section class="card"><p style="margin:0"><b>百萬內休旅十年養車細項報告</b> 售價 <b>NT$ 299</b></p>
+<p class="lead">數位內容，付款後解鎖。非購車契約。<br>電話 0908-289-921<br>Email timeandentropy@gmail.com</p></section>
+<form class="card" onsubmit="return run(event)">
 <div class="row"><div><label>每年公里</label><input id="km" type="number" value="15000"></div><div><label>算幾年</label><input id="years" type="number" value="10"></div></div>
 <div class="row"><div><label>汽油每公升</label><input id="gas" type="number" value="32"></div><div><label>貸款年利率% 0=現金</label><input id="apr" type="number" step="0.1" value="3.5"></div></div>
 <button class="primary">排出十年總帳</button></form>
 <section id="out" class="card" style="display:none">
 <div class="win" id="banner"></div><div id="ranks"></div>
-<div id="paid"><div class="pay"><b>完整細項 299 元</b>
-<p class="lead">LINE 轉帳後給解鎖碼。範例碼：SUV299</p>
-<label>解鎖碼</label><input id="code" placeholder="SUV299">
+<div id="paid"><div class="pay"><b>完整細項 NT$ 299</b>
+<p class="lead">綠界審核中，過後改接真款。測試碼 SUV299</p>
+<input id="code" placeholder="SUV299">
 <button class="primary" type="button" onclick="unlock()">解鎖細項</button></div></div>
 <div id="detail" style="display:none"></div></section></main>
-<footer>2026 年中階售價與能源署油耗試算，非成交價。</footer>
+<footer>賣家聯絡：0908-289-921 timeandentropy@gmail.com<br>售價新台幣 299 元。數位報告付款後解鎖。試算非購車建議。</footer>
 <script>
 const CARS=[
 {name:'Toyota Yaris Cross 汽油',price:745000,kpl:17.5,keep:0.20,tax:11920,ins:14000,svc:7500},
@@ -60,7 +63,7 @@ $('ranks').innerHTML=LAST.map((x,i)=>'<div class="rank"><span>'+(i+1)+'. '+x.car
 $('out').style.display='block';
 if(sessionStorage.getItem('suv_ok')==='1')renderDetail();else{$('paid').style.display='block';$('detail').style.display='none';}
 $('out').scrollIntoView({behavior:'smooth'});return false;}
-function unlock(){if((($('code').value||'').trim().toUpperCase())==='SUV299'){sessionStorage.setItem('suv_ok','1');renderDetail();}else alert('解鎖碼不對，先試 SUV299');}
+function unlock(){if((($('code').value||'').trim().toUpperCase())==='SUV299'){sessionStorage.setItem('suv_ok','1');renderDetail();}else alert('解鎖碼不對');}
 function renderDetail(){$('paid').style.display='none';$('detail').style.display='block';
 $('detail').innerHTML=LAST.map((x,i)=>'<h3>'+(i+1)+'. '+x.car.name+'</h3><table>'+
 '<tr><td>車價</td><td class="r">'+wan(x.car.price)+'</td></tr>'+
