@@ -2,23 +2,73 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>百萬內休旅十年養車比</title>
 <style>
 :root{--bg:#f3eee6;--card:#fffdf8;--ink:#1a1612;--muted:#6a5e52;--line:#e6d9c8;--go:#8a3d16}
 *{box-sizing:border-box}body{margin:0;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
-header,main,footer{width:min(720px,100%);margin:0 auto}header{padding:22px 16px 6px}h1{font-size:1.35rem;margin:0 0 6px}.lead{color:var(--muted);margin:0;font-size:.95rem}
+header,main,footer{width:min(720px,100%);margin:0 auto}header{padding:22px 16px 6px}h1{font-size:1.35rem;margin:0 0 6px}.lead{color:var(--muted);margin:0}
 main{padding:8px 14px 40px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:12px}
-label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:3px}input{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:10px}
+label{display:block;font-size:.78rem;color:var(--muted)}input{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin-top:3px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}button.primary{width:100%;margin-top:12px;border:0;border-radius:999px;padding:13px;font:inherit;font-weight:700;color:#fff;background:var(--go)}
-.rank{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line)}.rank b{font-size:1.15rem}
+.rank{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}.rank b{font-size:1.15rem}
 .win{background:#143326;color:#fff;border-radius:14px;padding:14px;margin-bottom:10px}.win b{display:block;font-size:1.2rem;margin-top:4px}
-.pay{border:1px dashed var(--line);border-radius:12px;padding:12px;margin-top:10px;background:#fff}
-table{width:100%;border-collapse:collapse;font-size:.84rem;margin-top:8px}td{padding:6px 0;border-bottom:1px solid var(--line)}td.r{text-align:right;white-space:nowrap}
+.pay{border:1px dashed var(--line);border-radius:12px;padding:12px;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:.84rem}td{padding:6px 0;border-bottom:1px solid var(--line)}td.r{text-align:right}
 footer{padding:0 16px 28px;color:var(--muted);font-size:.76rem}
 </style></head><body>
 <header><h1>百萬內中小休旅，十年哪台比較省？</h1>
-<p class="lead">預設年跑 1.5 萬公里、油價 32 元。排名免費看，細項報告 299 元。</p></header>
+<p class="lead">年跑 1.5 萬公里、油 32 元。排名免費，細項 299 元。</p></header>
 <main><form class="card" onsubmit="return run(event)">
-<div class="row"><div><label>每年公里</label><input id="km" type=
+<div class="row"><div><label>每年公里</label><input id="km" type="number" value="15000"></div><div><label>算幾年</label><input id="years" type="number" value="10"></div></div>
+<div class="row"><div><label>汽油每公升</label><input id="gas" type="number" value="32"></div><div><label>貸款年利率% 0=現金</label><input id="apr" type="number" step="0.1" value="3.5"></div></div>
+<button class="primary">排出十年總帳</button></form>
+<section id="out" class="card" style="display:none">
+<div class="win" id="banner"></div><div id="ranks"></div>
+<div id="paid"><div class="pay"><b>完整細項 299 元</b>
+<p class="lead">LINE 轉帳後給解鎖碼。範例碼：SUV299</p>
+<label>解鎖碼</label><input id="code" placeholder="SUV299">
+<button class="primary" type="button" onclick="unlock()">解鎖細項</button></div></div>
+<div id="detail" style="display:none"></div></section></main>
+<footer>2026 年中階售價與能源署油耗試算，非成交價。</footer>
+<script>
+const CARS=[
+{name:'Toyota Yaris Cross 汽油',price:745000,kpl:17.5,keep:0.20,tax:11920,ins:14000,svc:7500},
+{name:'Nissan Kicks',price:777000,kpl:16.0,keep:0.12,tax:11920,ins:14500,svc:8000},
+{name:'Mitsubishi XForce',price:820000,kpl:17.0,keep:0.11,tax:11920,ins:14500,svc:8000},
+{name:'Honda HR-V e:HEV',price:899000,kpl:23.5,keep:0.16,tax:11920,ins:16000,svc:8500},
+{name:'Toyota Corolla Cross 油電',price:915000,kpl:23.5,keep:0.18,tax:11920,ins:16500,svc:8000},
+{name:'Ford Territory 1.5T',price:949000,kpl:14.0,keep:0.10,tax:11920,ins:17000,svc:9000}
+];
+const $=id=>document.getElementById(id);const nn=id=>{const v=parseFloat($(id).value);return Number.isFinite(v)?v:0};
+function wan(v){const n=Math.round(v),a=Math.abs(n);if(a>=10000){const w=n/10000;const s=Math.abs(w)>=100?w.toFixed(0):w.toFixed(1).replace(/\.0$/,'');return (n<0?'\u2212':'')+s+' 萬';}return n.toLocaleString('zh-TW')+' 元';}
+function pmt(P,apr,m){if(m<=0||P<=0)return 0;const r=(apr/100)/12;if(!r)return P/m;return P*r*Math.pow(1+r,m)/(Math.pow(1+r,m)-1)}
+let LAST=[];
+function cost(car,years,kmY,gas,apr){
+const fuel=kmY/car.kpl*gas*years,tax=car.tax*years,ins=car.ins*years,svc=car.svc*years+Math.floor(years/4)*18000;
+const residual=car.price*car.keep*(years>=10?1:years/10);
+const interest=apr>0?pmt(car.price,apr,84)*Math.min(years*12,84)-Math.min(1,years*12/84)*car.price:0;
+const net=car.price+Math.max(0,interest)+fuel+tax+ins+svc-residual;
+return {car,fuel,tax,ins,svc,residual,interest:Math.max(0,interest),net};
+}
+function run(e){e.preventDefault();
+const years=Math.max(1,nn('years')),kmY=nn('km'),gas=nn('gas'),apr=nn('apr');
+LAST=CARS.map(c=>cost(c,years,kmY,gas,apr)).sort((a,b)=>a.net-b.net);
+const b=LAST[0],w=LAST[LAST.length-1];
+$('banner').innerHTML='十年最省是<b>'+b.car.name+'</b>約 '+wan(b.net)+'。比最貴少約 '+wan(w.net-b.net)+'。';
+$('ranks').innerHTML=LAST.map((x,i)=>'<div class="rank"><span>'+(i+1)+'. '+x.car.name+'</span><b>'+wan(x.net)+'</b></div>').join('');
+$('out').style.display='block';
+if(sessionStorage.getItem('suv_ok')==='1')renderDetail();else{$('paid').style.display='block';$('detail').style.display='none';}
+$('out').scrollIntoView({behavior:'smooth'});return false;}
+function unlock(){if((($('code').value||'').trim().toUpperCase())==='SUV299'){sessionStorage.setItem('suv_ok','1');renderDetail();}else alert('解鎖碼不對，先試 SUV299');}
+function renderDetail(){$('paid').style.display='none';$('detail').style.display='block';
+$('detail').innerHTML=LAST.map((x,i)=>'<h3>'+(i+1)+'. '+x.car.name+'</h3><table>'+
+'<tr><td>車價</td><td class="r">'+wan(x.car.price)+'</td></tr>'+
+'<tr><td>油錢</td><td class="r">'+wan(x.fuel)+'</td></tr>'+
+'<tr><td>牌燃稅</td><td class="r">'+wan(x.tax)+'</td></tr>'+
+'<tr><td>保險</td><td class="r">'+wan(x.ins)+'</td></tr>'+
+'<tr><td>保養＋胎</td><td class="r">'+wan(x.svc)+'</td></tr>'+
+'<tr><td>利息</td><td class="r">'+wan(x.interest)+'</td></tr>'+
+'<tr><td>減殘值</td><td class="r">\u2212'+wan(x.residual)+'</td></tr>'+
+'<tr><td>淨成本</td><td class="r"><b>'+wan(x.net)+'</b></td></tr></table>').join('');}
+</script></body></html>
